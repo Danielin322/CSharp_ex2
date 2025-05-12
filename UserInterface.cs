@@ -17,37 +17,58 @@ namespace Ex02
             m_OutputProvider = i_OutputProvider;
         }
 
-        public void GetMaxNumberOfGuesses(out int o_MaxGuesses)
+        public void GetMaxNumberOfGuesses(out string o_MaxGuesses)
         {
             bool isValid = false;
-            string input;
+            
+            m_OutputProvider.PrintGuessLimitPrompt();
 
-            o_MaxGuesses = 0;
-
-            while (!isValid)
+            do
             {
-                m_OutputProvider.PrintGuessLimitPrompt();
-                m_InputProvider.GetMaxGuessInput(out input);
+                m_InputProvider.GetMaxGuessInput(out o_MaxGuesses);
 
-                if (GameLogic.IsQuitCommand(input))
+                isValid = GameLogic.IsMaxGuessesValid(o_MaxGuesses);
+
+                if (!isValid)
                 {
-                    m_OutputProvider.PrintQuitMessage();
-                    o_MaxGuesses = -1;
+                    PrintInvalidInputMessage(o_MaxGuesses);
                 }
-                else if (!GameLogic.IsNumericGuessLimitInput(input))
-                {
-                    m_OutputProvider.PrintInvalidNumberMessage();
-                }
-                else if (!GameLogic.IsGuessInRange(o_MaxGuesses))
-                {
-                    m_OutputProvider.PrintNumberOutOfRangeMessage();
-                }
-                else
-                {
-                    isValid = true;
-                }
+
+            } while (!isValid);
+        }
+
+        public void PrintInvalidInputMessage(string i_Input)
+        {
+            if (!GameLogic.IsInputNumeric(i_Input))
+            {
+                m_OutputProvider.PrintInvalidNumberMessage();
+            }
+            else if(!GameLogic.IsGuessesAmountInRange(i_Input))
+            {
+                m_OutputProvider.PrintNumberOutOfRangeMessage();
             }
         }
+
+        public void GetGuess(out string o_Guess)
+        {
+            bool isValid = false;
+
+            do
+            {
+                m_OutputProvider.PrintGuessPrompt();
+                m_InputProvider.GetGuessFromUser(out o_Guess);
+
+                isValid = GameLogic.IsGuessValid(o_Guess);
+
+                if (!isValid)
+                {
+                    m_OutputProvider.PrintInvalidGuessMessage();
+                }
+
+            } while (!isValid);
+        }
+
+
 
 
     }

@@ -8,5 +8,19 @@ namespace Ex02
 {
     internal class GameManager
     {
+        public void run() 
+        {
+            //while(!GameLogic.IsInputQuitCommand())
+            {
+
+            }
+
+        }
+
+        //public void GetMaxGuessesInput(out int o_MaxNumberOfGuesses)
+        //{
+
+        //}
+
     }
 }

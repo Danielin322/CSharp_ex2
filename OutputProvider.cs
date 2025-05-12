@@ -70,12 +70,12 @@ namespace Ex02
 
         public void PrintInvalidNumberMessage() ////////
         {
-            Console.WriteLine("Invalid input. Please enter a number between 4 and 10, or 'Q' to quit.");
+            Console.WriteLine("Invalid input. Please enter a number between 4 and 10 or 'Q' to quit");
         }
 
         public void PrintNumberOutOfRangeMessage() ///////
         {
-            Console.WriteLine("Number out of range. Please enter a number between 4 and 10.");
+            Console.WriteLine("Number out of range. Please enter a number between 4 and 10 or 'Q' to quit");
         }
 
         public void PrintQuitMessage() ////////
@@ -90,7 +90,12 @@ namespace Ex02
 
         public void PrintInvalidGuessMessage()
         {
-            Console.WriteLine("Invalid guess. Make sure it's 4 different letters from A to H.");
+            Console.WriteLine("Invalid guess input. Make sure it's 4 different letters from A to H");
+        }
+
+        public void PrintGuessOutOfRangeMessage() ///////
+        {
+            Console.WriteLine("Guess out of range. Make sure it's 4 different letters from A to H");
         }
 
         public void PrintWinMessage(int i_AmountOfSteps) /////

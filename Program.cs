@@ -8,8 +8,16 @@ namespace Ex02
 {
     internal class Program
     {
-        int Main()
+        static int Main()
         {
+            InputProvider inputProvider = new InputProvider();
+            OutputProvider outputProvider = new OutputProvider();
+
+            UserInterface ui = new UserInterface(inputProvider, outputProvider);
+            //string tmp;
+            //ui.GetMaxNumberOfGuesses(out tmp);
+            //ui.GetGuess(out tmp);
+            //Console.WriteLine(tmp);
             return 0;
         }
     }

@@ -11,7 +11,7 @@ namespace Ex02
 
         public string ReadLine()
         {
-            return ReadLine();
+            return Console.ReadLine();
         }
 
         public void GetGuessFromUser(out string o_UserGuess)
