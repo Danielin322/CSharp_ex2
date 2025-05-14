@@ -6,103 +6,19 @@ using System.Threading.Tasks;
 
 namespace Ex02
 {
-    public static class GameLogic
+    public class GameLogic
     {
-        //public static bool IsInput(string i_Input)
-        //{
+        private Board m_Board;
+        private Guess m_Answer;
+        private UserInterface m_UserInterface = new UserInterface();
+        private int m_MaxGuesses;
 
-        //}
-
-
-
-
-        public static bool IsGuessValid(string i_Input)
+        public GameLogic()
         {
-            bool isValid = true;
+            m_Answer = Guess.GenerateAnswer();
+        }       
 
-            if (isNullOrEmpty(i_Input))
-            {
-                isValid = false;
-            }
-            else
-            {
-                string guess = removeSpaces(i_Input).ToUpper(); /////case sensitive?
-
-                if (!isGuessCorrectLength(guess))
-                {
-                    isValid = false;
-                }
-                else if (!containsOnlyValidLetters(guess))
-                {
-                    isValid = false;
-                }
-                else if (hasDuplicateLetters(guess))
-                {
-                    isValid = false;
-                }
-            }
-
-            return isValid;
-        }
-
-        private static bool isNullOrEmpty(string i_Input)
-        {
-            return string.IsNullOrWhiteSpace(i_Input);
-        }
-
-        /// check and change if case sensitive
-        private static bool containsOnlyValidLetters(string i_Guess)
-        {
-            bool isValid = true;
-
-            foreach (char letter in i_Guess)
-            {
-                if ((letter < 'A' || letter > 'H'))// case sensitive? add- && (letter < 'a' || letter > 'h'))
-                {
-                    isValid = false;
-                    break;
-                }
-            }
-
-            return isValid;
-        }
-
-        private static bool isGuessCorrectLength(string i_Guess)
-        {
-            return i_Guess.Length == 4;
-        }
-
-
-        /// check and change if case sensitive
-        private static bool hasDuplicateLetters(string i_Guess)
-        {
-            bool hasDuplicates = false;
-            int[] letterCounts = new int[8]; // case sensitive?
-            int index = 0;
-
-            foreach (char letter in i_Guess)
-            {
-                index = letter - 'A'; // case sensitive?
-                letterCounts[index]++;
-
-                if (letterCounts[index] > 1)
-                {
-                    hasDuplicates = true;
-                    break;
-                }
-            }
-
-            return hasDuplicates;
-        }
-
-        private static string removeSpaces(string i_Input)
-        {
-            return i_Input.Replace(" ", string.Empty);
-        }
-
-
-
-
+        
 
         public static bool IsMaxGuessesValid(string i_Input)
         {
@@ -120,7 +36,6 @@ namespace Ex02
             return isValid;
         }
 
-
         public static bool IsInputNumeric(string i_Input)
         {
             int temp;
@@ -131,13 +46,6 @@ namespace Ex02
         {
              return IsGuessesAmountInRange(i_Input);
         }
-
-
-        
-
-
-
-
 
         public static bool IsInputQuitCommand(string i_Input)
         {
@@ -157,7 +65,132 @@ namespace Ex02
             return GuessConvertedToInt >= 4 && GuessConvertedToInt <= 10;
         }
 
+       
+        public bool IsCorrectGuess(GuessAndResult i_guessAndResult)
+        {
+            return i_guessAndResult.Guess == m_Answer;
+        }
 
-        
+        public Result AnalyzeGuess(Guess i_UserGuess)
+        {
+            int bulls = i_UserGuess.CountBullsAgainst(m_Answer);
+            int cows = i_UserGuess.CountCowsAgainst(m_Answer);
+
+            string feedback = buildFeedbackString(bulls, cows);
+
+            return new Result(feedback);
+        }
+
+        private string buildFeedbackString(int i_Bulls, int i_Cows)
+        {
+            StringBuilder feedbackBuilder = new StringBuilder();
+
+            for (int i = 0; i < i_Bulls; i++)
+            {
+                feedbackBuilder.Append("V ");
+            }
+
+            for (int i = 0; i < i_Cows; i++)
+            {
+                feedbackBuilder.Append("X ");
+            }
+
+            return feedbackBuilder.ToString().TrimEnd();
+        }
+
+        public void RunGame()
+        {
+            bool playAgain;
+
+            do
+            {
+                startNewGame();
+                playSingleGame();
+                playAgain = askIfPlayAgain();
+            }
+            while (playAgain);
+
+            Message.PrintQuitMessage();
+        }
+
+        private void startNewGame()
+        {
+            m_Board = new Board();
+            m_Answer = Guess.GenerateAnswer();
+
+            m_UserInterface.ClearScreen();
+            m_UserInterface.GetMaxNumberOfGuesses(out string maxGuessesStr);
+            m_MaxGuesses = int.Parse(maxGuessesStr);
+        }
+
+        private void playSingleGame()
+        {
+            int numOfGuesses = 0;
+            bool isWin = false;
+            bool userQuit = false;
+
+            while (numOfGuesses < m_MaxGuesses && !isWin)
+            {
+                m_UserInterface.PrintBoard(m_Board);
+
+                Guess userGuess = m_UserInterface.GetGuess(out userQuit);
+                if (userQuit)
+                {
+                    return;
+                }
+
+                Result result = AnalyzeGuess(userGuess);
+                m_Board.AddGuessAndResult(userGuess, result);
+                numOfGuesses++;
+
+                isWin = userGuess == m_Answer;
+            }
+
+            m_UserInterface.PrintBoard(m_Board);
+            printEndMessage(isWin, numOfGuesses);
+        }
+
+        public void ResetForStartGame()
+        {
+            m_Answer = Guess.GenerateAnswer();
+
+        }
+
+        private bool askIfPlayAgain()
+        {
+            bool wantToPlay;
+            Message.PrintPlayAgainPrompt();
+            string answer = Console.ReadLine();
+
+            while (answer != "Y" && answer != "N" && answer != "Q")
+            {
+                Message.PrintInvalidPlayAgain();
+                answer = Console.ReadLine();
+            }
+            if (answer == "Y")
+            {
+                wantToPlay = true;
+            }
+            else
+            {
+                wantToPlay = false;
+            }
+
+            return wantToPlay;  
+
+        }
+
+        private void printEndMessage(bool i_IsWin, int i_NumOfGuesses)
+        {
+            if (i_IsWin)
+            {
+                Message.PrintWinMessage(i_NumOfGuesses);
+            }
+            else
+            {
+                Message.PrintLoseMessage();
+                Console.WriteLine($"The correct answer was: {m_Answer}");
+            }
+        }
     }
 }

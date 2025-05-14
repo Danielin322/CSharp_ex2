@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ex02.ConsoleUtils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,66 +7,82 @@ using System.Threading.Tasks;
 
 namespace Ex02
 {
-    internal class UserInterface
+    public class UserInterface
     {
-        private readonly InputProvider m_InputProvider;
-        private readonly OutputProvider m_OutputProvider;
-
-        public UserInterface(InputProvider i_InputProvider, OutputProvider i_OutputProvider)
-        {
-            m_InputProvider = i_InputProvider;
-            m_OutputProvider = i_OutputProvider;
-        }
+        
 
         public void GetMaxNumberOfGuesses(out string o_MaxGuesses)
         {
-            bool isValid = false;
+            bool isValid;
             
-            m_OutputProvider.PrintGuessLimitPrompt();
+            Message.PrintGuessLimitPrompt();
 
             do
             {
-                m_InputProvider.GetMaxGuessInput(out o_MaxGuesses);
+                o_MaxGuesses = Console.ReadLine();
 
                 isValid = GameLogic.IsMaxGuessesValid(o_MaxGuesses);
 
                 if (!isValid)
                 {
-                    PrintInvalidInputMessage(o_MaxGuesses);
+                    PrintInvalidMaxInputMessage(o_MaxGuesses);
                 }
 
             } while (!isValid);
         }
 
-        public void PrintInvalidInputMessage(string i_Input)
+        public void PrintInvalidMaxInputMessage(string i_Input)
         {
             if (!GameLogic.IsInputNumeric(i_Input))
             {
-                m_OutputProvider.PrintInvalidNumberMessage();
+                Message.PrintInvalidNumberMessage();
             }
             else if(!GameLogic.IsGuessesAmountInRange(i_Input))
             {
-                m_OutputProvider.PrintNumberOutOfRangeMessage();
+                Message.PrintNumberOutOfRangeMessage();
             }
         }
 
-        public void GetGuess(out string o_Guess)
+        public Guess GetGuess(out bool o_IsQuit)
         {
-            bool isValid = false;
+            bool isValid;
+            string guessInput;
 
             do
             {
-                m_OutputProvider.PrintGuessPrompt();
-                m_InputProvider.GetGuessFromUser(out o_Guess);
+                Message.PrintGuessPrompt();
+                guessInput = Console.ReadLine();
 
-                isValid = GameLogic.IsGuessValid(o_Guess);
+                if(GameLogic.IsInputQuitCommand(guessInput))
+                {
+                    o_IsQuit = true;
+                    break;
+                }
+
+                isValid = Guess.IsInputGuessValid(guessInput);
 
                 if (!isValid)
                 {
-                    m_OutputProvider.PrintInvalidGuessMessage();
+                    Message.PrintInvalidGuessMessage();
                 }
 
+                o_IsQuit= false;
+
             } while (!isValid);
+
+            return new Guess(guessInput);
+        }
+
+        public void ClearScreen()
+        {
+            Ex02.ConsoleUtils.Screen.Clear();
+        }
+
+        public void PrintBoard(Board i_Board)
+        {
+            Screen.Clear();
+            string boardString = i_Board.CreateBoardToString();
+            Console.WriteLine(boardString);
         }
 
 
