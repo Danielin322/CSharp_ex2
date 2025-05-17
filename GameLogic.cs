@@ -15,7 +15,9 @@ namespace Ex02
 
         public GameLogic()
         {
+            m_Board = new Board();
             m_Answer = Guess.GenerateAnswer();
+            m_UserInterface = new UserInterface();
         }       
 
         
@@ -51,9 +53,9 @@ namespace Ex02
         {
             bool isQuit = false;
 
-            if (!string.IsNullOrWhiteSpace(i_Input))
+            if (!string.IsNullOrWhiteSpace(i_Input) && (i_Input == "Q"))
             {
-                isQuit = i_Input.Trim().ToUpper() == "Q";
+                isQuit = true;
             }
 
             return isQuit;
@@ -63,12 +65,6 @@ namespace Ex02
         {
             int.TryParse(i_Guess, out int GuessConvertedToInt);
             return GuessConvertedToInt >= 4 && GuessConvertedToInt <= 10;
-        }
-
-       
-        public bool IsCorrectGuess(GuessAndResult i_guessAndResult)
-        {
-            return i_guessAndResult.Guess == m_Answer;
         }
 
         public Result AnalyzeGuess(Guess i_UserGuess)
@@ -101,11 +97,23 @@ namespace Ex02
         public void RunGame()
         {
             bool playAgain;
+            bool didQuit;
 
             do
             {
-                startNewGame();
-                playSingleGame();
+                startNewGame(out didQuit);
+                if (didQuit)
+                {
+                    break;
+                }
+
+                playSingleGame(out didQuit);
+
+                if (didQuit)
+                {
+                    break;
+                }
+
                 playAgain = askIfPlayAgain();
             }
             while (playAgain);
@@ -113,28 +121,36 @@ namespace Ex02
             Message.PrintQuitMessage();
         }
 
-        private void startNewGame()
+        private void startNewGame(out bool o_didQuit)
         {
             m_Board = new Board();
             m_Answer = Guess.GenerateAnswer();
 
             m_UserInterface.ClearScreen();
             m_UserInterface.GetMaxNumberOfGuesses(out string maxGuessesStr);
+
+            if(maxGuessesStr == "Q")
+            {
+                o_didQuit = true;
+                m_MaxGuesses = 0;
+                return;
+            }
+            o_didQuit = false;
             m_MaxGuesses = int.Parse(maxGuessesStr);
         }
 
-        private void playSingleGame()
+        private void playSingleGame(out bool o_DidQuit)
         {
             int numOfGuesses = 0;
             bool isWin = false;
-            bool userQuit = false;
+            o_DidQuit = false;
 
             while (numOfGuesses < m_MaxGuesses && !isWin)
             {
                 m_UserInterface.PrintBoard(m_Board);
 
-                Guess userGuess = m_UserInterface.GetGuess(out userQuit);
-                if (userQuit)
+                Guess userGuess = m_UserInterface.GetGuess(out o_DidQuit);
+                if (o_DidQuit)
                 {
                     return;
                 }
@@ -143,18 +159,15 @@ namespace Ex02
                 m_Board.AddGuessAndResult(userGuess, result);
                 numOfGuesses++;
 
-                isWin = userGuess == m_Answer;
+                if (userGuess == m_Answer)
+                {
+                    isWin = true;
+                }
             }
 
             m_UserInterface.PrintBoard(m_Board);
             printEndMessage(isWin, numOfGuesses);
-        }
-
-        public void ResetForStartGame()
-        {
-            m_Answer = Guess.GenerateAnswer();
-
-        }
+        }       
 
         private bool askIfPlayAgain()
         {

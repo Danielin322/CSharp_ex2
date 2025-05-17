@@ -56,17 +56,20 @@ namespace Ex02
                 if(GameLogic.IsInputQuitCommand(guessInput))
                 {
                     o_IsQuit = true;
-                    break;
+                    isValid = true;
                 }
-
-                isValid = Guess.IsInputGuessValid(guessInput);
-
-                if (!isValid)
+                else
                 {
-                    Message.PrintInvalidGuessMessage();
-                }
+                    isValid = Guess.IsInputGuessValid(guessInput);
 
-                o_IsQuit= false;
+                    if (!isValid)
+                    {
+                        Message.PrintInvalidGuessMessage();
+                    }
+
+                    o_IsQuit = false;
+
+                }                
 
             } while (!isValid);
 

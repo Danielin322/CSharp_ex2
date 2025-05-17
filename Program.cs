@@ -13,17 +13,8 @@ namespace Ex02
             GameLogic game = new GameLogic();
             game.RunGame();
 
-            //Board board = new Board();
-            //Guess guess = new Guess ("A B C D");
-            //Result res = new Result ("V V X X");
-            //board.AddGuessAndResult(guess, res);
-            //UserInterface.PrintBoard(board);
-            //UserInterface ui = new UserInterface(inputProvider, outputProvider);
-            //string tmp;
-            //ui.GetMaxNumberOfGuesses(out tmp);
-            //ui.GetGuess(out tmp);
-            //Console.WriteLine(tmp);
             return 0;
         }
+
     }
 }
